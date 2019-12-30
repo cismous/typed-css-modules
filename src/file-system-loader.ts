@@ -11,7 +11,17 @@ type Dictionary<T> = {
   [key: string]: T | undefined;
 };
 
-const readFile = util.promisify(fs.readFile);
+const readFile = async (path: string, encoding: string) => {
+  const maxTimes = 10;
+  const content = fs.readFileSync(path, encoding);
+  if (content) return content;
+  for (let i = 0; i < maxTimes; i++) {
+    await new Promise(resolve => setTimeout(() => resolve(), 10));
+    const content = fs.readFileSync(path, encoding);
+    if (content) return content;
+  }
+  return "";
+};
 
 
 export default class FileSystemLoader {
